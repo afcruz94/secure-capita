@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: "securecapita"
+    title: SecureCapita
+    version: 1.0
+  profiles:
+    active: @spring.profiles.active@
