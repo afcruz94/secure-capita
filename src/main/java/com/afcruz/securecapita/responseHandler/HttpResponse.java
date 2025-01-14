@@ -6,7 +6,6 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
-import java.util.Map;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT;
 
@@ -20,5 +19,5 @@ public class HttpResponse {
     protected String reason;
     protected String description;
     protected String developerMessage;
-    protected Map<?, ?> data;
+    protected Object data;
 }
