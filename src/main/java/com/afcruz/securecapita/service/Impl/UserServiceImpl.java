@@ -16,13 +16,22 @@ public class UserServiceImpl implements UserService {
     private final UserRepository<User> userRepository;
 
     @Override
-    public UserDTO getUser(Integer userId) {
-        return UserDTOMapper.fromUser(userRepository.get(userId));
+    public UserDTO getUserById(Integer userId) {
+        User user = userRepository.get(userId);
+
+        if (user != null) {
+            return UserDTOMapper.fromUser(user);
+        }
+
+        return null;
     }
 
     @Override
     public List<UserDTO> getAllUsers(int page, int size, String sort) {
-        return List.of();
+        return userRepository.list(page, size, sort)
+                .stream()
+                .map(UserDTOMapper::fromUser)
+                .toList();
     }
 
     @Override

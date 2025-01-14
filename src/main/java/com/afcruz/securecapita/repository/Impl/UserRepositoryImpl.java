@@ -5,8 +5,11 @@ import com.afcruz.securecapita.entity.User;
 import com.afcruz.securecapita.exception.ApiException;
 import com.afcruz.securecapita.repository.RoleRepository;
 import com.afcruz.securecapita.repository.UserRepository;
+import com.afcruz.securecapita.rowMapper.UserRowMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -78,21 +81,43 @@ public class UserRepositoryImpl implements UserRepository<User> {
     }
 
     @Override
-    public User get(long id) {
+    public User get(long userId) {
+        log.info("Searching user id {}", userId);
+
         // Search User
-        // If no user for given id, throw
-        // If any error, thrown exception
+        try {
+            return namedParameterJdbcTemplate.queryForObject(SELECT_USER_BY_ID, of("userId", userId), new UserRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("No user found with id {}", userId);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
         return null;
+    }
+
+    @Override
+    public Collection<User> list(int page, int size, String sort) {
+        log.info("Searching all users");
+        final int offset = (page * size) - size;
+
+        try {
+            return namedParameterJdbcTemplate.query(SELECT_ALL_USERS_PAGEABLE, of("size", size, "offset", offset, "sortBy", sort), new UserRowMapper());
+        } catch (BadSqlGrammarException ex) {
+            log.error("An exception occurred while executing SQL statement: {}", ex.getMessage());
+            log.debug("Stack Trace: ", ex);
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("No users found");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        return List.of();
     }
 
     @Override
     public User update(User data) {
         return null;
-    }
-
-    @Override
-    public Collection<User> list(int page, int pageSize) {
-        return List.of();
     }
 
     @Override
