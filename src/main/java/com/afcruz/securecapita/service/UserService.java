@@ -6,9 +6,13 @@ import com.afcruz.securecapita.entity.User;
 import java.util.List;
 
 public interface UserService {
-    UserDTO createUser(User user);
-    UserDTO getUserById(Integer userId);
+    UserDTO getUserById(Long userId);
+
     List<UserDTO> getAllUsers(int page, int size, String sort);
+
+    UserDTO createUser(User user);
+
     UserDTO updateUser(User user);
-    Boolean deleteUser(Integer userId);
+
+    Boolean deleteUser(Long userId);
 }

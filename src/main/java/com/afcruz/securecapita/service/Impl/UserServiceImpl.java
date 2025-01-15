@@ -16,7 +16,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository<User> userRepository;
 
     @Override
-    public UserDTO getUserById(Integer userId) {
+    public UserDTO getUserById(Long userId) {
         User user = userRepository.get(userId);
 
         if (user != null) {
@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean deleteUser(Integer userId) {
-        return null;
+    public Boolean deleteUser(Long userId) {
+        return userRepository.delete(userId);
     }
 }

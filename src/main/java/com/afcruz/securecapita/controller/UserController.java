@@ -41,7 +41,7 @@ public class UserController {
     }
 
     @GetMapping("/find/{id}")
-    public ResponseEntity<HttpResponse> findUserById(@PathVariable(name = "id") @Min(1) Integer userId) {
+    public ResponseEntity<HttpResponse> findUserById(@PathVariable(name = "id") @Min(1) Long userId) {
         final UserDTO userDTO = userService.getUserById(userId);
 
         final Object data = userDTO != null ? userDTO : "User with id [" + userId + "] not found!";
@@ -73,6 +73,14 @@ public class UserController {
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());
+    }
+
+    @DeleteMapping("deleteUser/{id}")
+    public ResponseEntity<HttpResponse> deleteUserById(@PathVariable(name = "id") @Min(1) Long userId) {
+        final boolean isDeleted = userService.deleteUser(userId);
+        final HttpStatus status = isDeleted ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+
+        return ResponseEntity.status(status).build();
     }
 
     private URI getURI() {
