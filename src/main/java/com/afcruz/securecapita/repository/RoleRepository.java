@@ -5,21 +5,23 @@ import com.afcruz.securecapita.entity.Role;
 import java.util.Collection;
 
 public interface RoleRepository<T extends Role> {
-    T create(T data);
-
-    T get(long id);
-
-    T update(T data);
+    T get(long roleId);
 
     Collection<T> list(int page, int pageSize);
 
-    Boolean delete(Long id);
+    T create(T data);
 
-    void addRoleToUser(Long id, String roleName);
+    T update(T data);
 
-    Role getRoleByUserId(Long usedId);
+    Boolean delete(Long roleId);
+
+    Role getRoleByUserId(Long userId);
 
     Role getRoleByUserEmail(String email);
 
-    void updateUserRole(Long userid, String roleName);
+    void addRoleToUser(Long userId, String roleName);
+
+    void updateUserRole(Long userId, String roleName);
+
+    void deleteRoleToUser(Long userId);
 }

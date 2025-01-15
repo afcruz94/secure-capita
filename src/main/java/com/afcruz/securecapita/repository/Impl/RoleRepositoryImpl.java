@@ -14,8 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.afcruz.securecapita.enums.RoleType.ROLE_USER;
-import static com.afcruz.securecapita.query.RoleQuery.INSERT_ROLE_TO_USER;
-import static com.afcruz.securecapita.query.RoleQuery.SELECT_ROLE_BY_NAME_QUERY;
+import static com.afcruz.securecapita.query.RoleQuery.*;
 import static java.util.Map.of;
 import static java.util.Objects.requireNonNull;
 
@@ -25,18 +24,9 @@ import static java.util.Objects.requireNonNull;
 public class RoleRepositoryImpl implements RoleRepository<Role> {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    @Override
-    public Role create(Role data) {
-        return null;
-    }
 
     @Override
-    public Role get(long id) {
-        return null;
-    }
-
-    @Override
-    public Role update(Role data) {
+    public Role get(long roleId) {
         return null;
     }
 
@@ -46,7 +36,27 @@ public class RoleRepositoryImpl implements RoleRepository<Role> {
     }
 
     @Override
-    public Boolean delete(Long id) {
+    public Role create(Role data) {
+        return null;
+    }
+
+    @Override
+    public Role update(Role data) {
+        return null;
+    }
+
+    @Override
+    public Boolean delete(Long roleId) {
+        return null;
+    }
+
+    @Override
+    public Role getRoleByUserId(Long userId) {
+        return null;
+    }
+
+    @Override
+    public Role getRoleByUserEmail(String email) {
         return null;
     }
 
@@ -55,8 +65,11 @@ public class RoleRepositoryImpl implements RoleRepository<Role> {
         log.info("Adding role {} to user id : {}", roleName, userId);
 
         try {
+            // Get Role
             Role role = namedParameterJdbcTemplate.queryForObject(SELECT_ROLE_BY_NAME_QUERY, of("name", roleName), new RoleRowMapper());
-            namedParameterJdbcTemplate.update(INSERT_ROLE_TO_USER, of("userId", userId, "roleId", requireNonNull(role).getRoleId()));
+
+            // Insert into UserRoles
+            namedParameterJdbcTemplate.update(INSERT_ROLE_TO_USER_QUERY, of("userId", userId, "roleId", requireNonNull(role).getRoleId()));
         } catch (EmptyResultDataAccessException e) {
             throw new ApiException("No role found by name: " + ROLE_USER.name());
         } catch (Exception e) {
@@ -68,17 +81,26 @@ public class RoleRepositoryImpl implements RoleRepository<Role> {
     }
 
     @Override
-    public Role getRoleByUserId(Long usedId) {
-        return null;
+    public void updateUserRole(Long userId, String roleName) {
+
     }
 
     @Override
-    public Role getRoleByUserEmail(String email) {
-        return null;
-    }
+    public void deleteRoleToUser(Long userId) {
+        log.info("Deleting from UserRoles to user id : {}", userId);
 
-    @Override
-    public void updateUserRole(Long userid, String roleName) {
+        try {
+            // Delete from UserRoles
+            int deletedCount = namedParameterJdbcTemplate.update(DELETE_ROLE_TO_USER_QUERY, of("userId", userId));
 
+            if (deletedCount == 0) throw new EmptyResultDataAccessException(deletedCount);
+
+        } catch (EmptyResultDataAccessException e) {
+            throw new ApiException("No user roles information found for user: " + userId);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ApiException("An internal error occurred when deleting user roles information for user id " + userId
+                    + ". Contact Support Team");
+        }
     }
 }
