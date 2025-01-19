@@ -7,7 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -34,4 +36,6 @@ public class User {
     private Boolean isNonLocked;
     private Boolean isUsingMFA;
     private LocalDateTime createAt;
+    @UpdateTimestamp
+    private Timestamp updatedAt;
 }

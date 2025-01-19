@@ -2,6 +2,7 @@ package com.afcruz.securecapita.Dto;
 
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -18,4 +19,5 @@ public class UserDTO {
     private Boolean isNonLocked;
     private Boolean isUsingMFA;
     private LocalDateTime createAt;
+    private Timestamp updatedAt;
 }
