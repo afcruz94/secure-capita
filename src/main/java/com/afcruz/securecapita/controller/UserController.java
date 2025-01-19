@@ -20,7 +20,7 @@ import static java.time.Instant.now;
 import static java.util.Map.of;
 
 @RestController
-@RequestMapping(path = "/api/v1/user")
+@RequestMapping(path = "/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
@@ -43,42 +43,78 @@ public class UserController {
     @GetMapping("/find/{id}")
     public ResponseEntity<HttpResponse> findUserById(@PathVariable(name = "id") @Min(1) Long userId) {
         final UserDTO userDTO = userService.getUserById(userId);
+        Object data = userDTO ;
+        String reason = "User found";
+        HttpStatus status = HttpStatus.OK;
 
-        final Object data = userDTO != null ? userDTO : "User with id [" + userId + "] not found!";
-        final String reason = userDTO != null ? "User found" : "User not found";
+        if(userDTO == null) {
+            data = "User with id [" + userId + "] not found!";
+            reason = "User not found";
+            status = HttpStatus.NOT_FOUND;
+        }
 
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timestamp(now())
                         .data(of("user", data))
                         .reason(reason)
-                        .status(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
+                        .status(status)
+                        .statusCode(status.value())
                         .build()
         );
     }
 
-    @GetMapping("findAll")
+    @GetMapping("find-all")
     public ResponseEntity<HttpResponse> findAllUsers(@RequestParam() Integer page,
                                                      @RequestParam(defaultValue = "10", required = false) Integer size,
                                                      @RequestParam(defaultValue = "user_id", required = false) String sortBy) {
         final List<UserDTO> usersList = userService.getAllUsers(page, size, sortBy);
-        final String reason = usersList.isEmpty() ? "No users found" : "List of users";
+        String reason = usersList.isEmpty() ? "No users found" : "List of users";
+        HttpStatus status = HttpStatus.OK;
+
+        if(usersList.isEmpty()) {
+            reason = "No users found";
+            status = HttpStatus.NOT_FOUND;
+        }
 
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timestamp(now())
                         .data(new PageableDTO(page, size, sortBy, usersList))
                         .reason(reason)
-                        .status(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
+                        .status(status)
+                        .statusCode(status.value())
                         .build());
     }
 
-    @DeleteMapping("deleteUser/{id}")
+    @PutMapping("update-user/{userId}")
+    public ResponseEntity<HttpResponse> updateEntireUser(@RequestBody @Valid User user, @PathVariable Long userId) {
+        final UserDTO userDTO = userService.updateUser(user, userId);
+        Object data = userDTO ;
+        String reason = "User found";
+        HttpStatus status = HttpStatus.OK;
+
+        if(userDTO == null) {
+            data = "User with id [" + userId + "] not found!";
+            reason = "User not found";
+            status = HttpStatus.NO_CONTENT;
+        }
+
+        return ResponseEntity.created(this.getURI()).body(
+                HttpResponse.builder()
+                        .timestamp(now())
+                        .data(of("user", data))
+                        .reason(reason)
+                        .status(status)
+                        .statusCode(status.value())
+                        .build()
+        );
+    }
+
+    @DeleteMapping("delete-user/{id}")
     public ResponseEntity<HttpResponse> deleteUserById(@PathVariable(name = "id") @Min(1) Long userId) {
         final boolean isDeleted = userService.deleteUser(userId);
-        final HttpStatus status = isDeleted ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        final HttpStatus status = isDeleted ? HttpStatus.OK : HttpStatus.NOT_FOUND;
 
         return ResponseEntity.status(status).build();
     }

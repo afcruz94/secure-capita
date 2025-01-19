@@ -12,7 +12,9 @@ public interface UserService {
 
     UserDTO createUser(User user);
 
-    UserDTO updateUser(User user);
+    UserDTO updateUser(User user, Long userId);
+
+    UserDTO updateUserRole(Long userId, String role);
 
     Boolean deleteUser(Long userId);
 }

@@ -20,9 +20,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.afcruz.securecapita.enums.RoleType.ROLE_USER;
 import static com.afcruz.securecapita.enums.VerificationType.ACCOUNT;
@@ -54,8 +52,16 @@ public class UserRepositoryImpl implements UserRepository<User> {
 
             KeyHolder holder = new GeneratedKeyHolder();
 
+            Map<String, Object> userMap = Map.of(
+                    "firstName", user.getFirstName(),
+                    "lastName", user.getLastName(),
+                    "email", user.getEmail(),
+                    "password", encoder.encode(user.getPassword()),
+                    "title", role
+            );
+
             // Parameters Source
-            SqlParameterSource parameterSource = getSqlParameterSource(user, role);
+            SqlParameterSource parameterSource = getSqlParameterSource(userMap);
 
             // Insert User
             namedParameterJdbcTemplate.update(INSERT_USER_QUERY, parameterSource, holder);
@@ -120,7 +126,47 @@ public class UserRepositoryImpl implements UserRepository<User> {
     }
 
     @Override
-    public User update(User data) {
+    public User update(User user, Long userId) {
+        log.info("Try to update user id {}", userId);
+
+        User currentUser = get(userId);
+
+        // Validate if User exists
+        if (currentUser != null) {
+            // Update all user info
+            try {
+                log.info("Updating user id {}", userId);
+
+                Map<String, Object> userMap = Map.of(
+                        "userId", userId,
+                        "email", user.getEmail(),
+                        "address", user.getAddress(),
+                        "phone", user.getPhone(),
+                        "bio", user.getBio()
+                );
+
+                // Parameters Source
+                SqlParameterSource parameterSource = getSqlParameterSource(userMap);
+
+                int updateCounter = namedParameterJdbcTemplate.update(UPDATE_USER_QUERY, parameterSource);
+
+                if(updateCounter > 0) {
+                   return get(userId);
+                }
+
+                else return null;
+
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                throw new ApiException("Internal error occurred. Contact Support Team");
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public User updateUserRole(Long userId, String role) {
         return null;
     }
 
@@ -159,13 +205,11 @@ public class UserRepositoryImpl implements UserRepository<User> {
         return namedParameterJdbcTemplate.queryForObject(COUNT_USER_EMAIL_QUERY, of("email", email), Integer.class);
     }
 
-    private SqlParameterSource getSqlParameterSource(User user, String role) {
-        return new MapSqlParameterSource()
-                .addValue("firstName", user.getFirstName())
-                .addValue("lastName", user.getLastName())
-                .addValue("email", user.getEmail())
-                .addValue("password", encoder.encode(user.getPassword()))
-                .addValue("title", role);
+    private SqlParameterSource getSqlParameterSource(Map<String, Object> userMap) {
+        MapSqlParameterSource mapSqlParameterSource = new MapSqlParameterSource();
+        userMap.forEach(mapSqlParameterSource::addValue);
+
+        return mapSqlParameterSource;
     }
 
     private String getVerificationUrl(String key, String type) {

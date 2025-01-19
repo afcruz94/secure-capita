@@ -8,4 +8,5 @@ public class UserQuery {
     public static final String DELETE_USER_BY_ID_QUERY = "DELETE FROM Users WHERE user_id = :userId";
     public static final String INSERT_ACCOUNT_VERIFICATION_URL_QUERY = "INSERT INTO AccountVerifications (user_id, url) VALUES (:userId, :url)";
     public static final String DELETE_ACCOUNT_VERIFICATION_URL_QUERY = "DELETE FROM AccountVerifications WHERE user_id = :userId";
+    public static final String UPDATE_USER_QUERY = "UPDATE Users SET email = :email, address = :address, phone = :phone, bio = :bio, updated_at = now() WHERE user_id = :userId";
 }

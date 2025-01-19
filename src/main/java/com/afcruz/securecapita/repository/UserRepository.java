@@ -11,7 +11,9 @@ public interface UserRepository<T extends User> {
 
     T create(T data);
 
-    T update(T data);
+    T update(T data, Long userId);
+
+    T updateUserRole(Long userId, String role);
 
     Boolean delete(Long userId);
 }
