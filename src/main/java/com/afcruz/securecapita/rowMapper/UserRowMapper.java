@@ -22,6 +22,7 @@ public class UserRowMapper implements RowMapper<User> {
                 .enabled(rs.getBoolean("enabled"))
                 .isNonLocked(rs.getBoolean("non_locked"))
                 .createAt(LocalDateTime.of(rs.getDate("created_at").toLocalDate(), rs.getTime("created_at").toLocalTime()))
+                .updatedAt(rs.getTimestamp("updated_at"))
                 .build();
     }
 }
