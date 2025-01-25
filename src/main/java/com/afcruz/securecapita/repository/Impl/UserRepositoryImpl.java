@@ -154,7 +154,7 @@ public class UserRepositoryImpl implements UserRepository<User> {
                    return get(userId);
                 }
 
-                else return null;
+                return null;
 
             } catch (Exception e) {
                 log.error(e.getMessage());
@@ -166,7 +166,38 @@ public class UserRepositoryImpl implements UserRepository<User> {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public User updateUserRole(Long userId, String role) {
+        log.info("Try to update user id {} role to {}", userId, role);
+
+        // Validate if User exist
+        User user = this.get(userId);
+
+        if(user != null) {
+            try {
+                // Check if new role exist and update
+                roleRepository.updateUserRole(userId, role);
+
+                // Update user with new role
+                log.info("Try to update user id {} role to {} in the users table", userId, role);
+                final String roleTitle = role.substring(5);
+                int updateCounter = namedParameterJdbcTemplate.update(UPDATE_USER_ROLE_QUERY, of("role", roleTitle, "userId", userId));
+
+                // If update set title and return user fetched
+                if(updateCounter > 0) {
+                    user.setTitle(roleTitle);
+                    return user;
+                }
+
+                // No user updated
+                throw new Exception("Error occurred when update user id: " + userId);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                throw new ApiException("Internal error occurred. Contact Support Team");
+            }
+        }
+
+        // No user found
         return null;
     }
 

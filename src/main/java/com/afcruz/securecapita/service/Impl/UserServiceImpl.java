@@ -49,7 +49,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO updateUserRole(Long userId, String role) {
-        return null;
+        Object updatedUser = userRepository.updateUserRole(userId, role);
+
+        if(updatedUser != null) return UserDTOMapper.fromUser((User)updatedUser);
+        else return null;
     }
 
     @Override
