@@ -24,7 +24,6 @@ import static java.util.Objects.requireNonNull;
 public class RoleRepositoryImpl implements RoleRepository<Role> {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-
     @Override
     public Role get(long roleId) {
         return null;
@@ -82,7 +81,21 @@ public class RoleRepositoryImpl implements RoleRepository<Role> {
 
     @Override
     public void updateUserRole(Long userId, String roleName) {
+        log.info("Update role to user id : {}", userId);
 
+        try {
+            // Get Role
+            Role role = namedParameterJdbcTemplate.queryForObject(SELECT_ROLE_BY_NAME_QUERY, of("name", roleName), new RoleRowMapper());
+
+            // Update into UserRoles
+            namedParameterJdbcTemplate.update(UPDATE_ROLE_TO_USER_QUERY, of("roleId", requireNonNull(role).getRoleId(), "userId", userId));
+        } catch (EmptyResultDataAccessException e) {
+            throw new ApiException("No user roles information found for user: " + userId);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ApiException("An internal error occurred when updating user role information for user id " + userId
+                    + ". Contact Support Team");
+        }
     }
 
     @Override
