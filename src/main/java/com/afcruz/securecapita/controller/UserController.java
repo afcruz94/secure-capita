@@ -43,25 +43,9 @@ public class UserController {
     @GetMapping("/find/{id}")
     public ResponseEntity<HttpResponse> findUserById(@PathVariable(name = "id") @Min(1) Long userId) {
         final UserDTO userDTO = userService.getUserById(userId);
-        Object data = userDTO;
-        String reason = "User found";
-        HttpStatus status = HttpStatus.OK;
 
-        if (userDTO == null) {
-            data = "User with id [" + userId + "] not found!";
-            reason = "User not found";
-            status = HttpStatus.NOT_FOUND;
-        }
-
-        return ResponseEntity.status(status).body(
-                HttpResponse.builder()
-                        .timestamp(now())
-                        .data(of("user", data))
-                        .reason(reason)
-                        .status(status)
-                        .statusCode(status.value())
-                        .build()
-        );
+        return ResponseEntity.ok()
+                .body(this.validateAndCreateRequestResponse(userDTO, userId));
     }
 
     @GetMapping("find-all")
@@ -69,7 +53,7 @@ public class UserController {
                                                      @RequestParam(defaultValue = "10", required = false) Integer size,
                                                      @RequestParam(defaultValue = "user_id", required = false) String sortBy) {
         final List<UserDTO> usersList = userService.getAllUsers(page, size, sortBy);
-        String reason = usersList.isEmpty() ? "No users found" : "List of users";
+        String reason = "List of users";
         HttpStatus status = HttpStatus.OK;
 
         if (usersList.isEmpty()) {
@@ -90,50 +74,17 @@ public class UserController {
     @PutMapping("update-user/{userId}")
     public ResponseEntity<HttpResponse> updateEntireUser(@RequestBody @Valid User user, @PathVariable Long userId) {
         final UserDTO userDTO = userService.updateUser(user, userId);
-        Object data = userDTO;
-        String reason = "User found";
-        HttpStatus status = HttpStatus.OK;
 
-        if (userDTO == null) {
-            data = "User with id [" + userId + "] not found!";
-            reason = "User not found";
-            status = HttpStatus.NO_CONTENT;
-        }
-
-        return ResponseEntity.status(status).body(
-                HttpResponse.builder()
-                        .timestamp(now())
-                        .data(of("user", data))
-                        .reason(reason)
-                        .status(status)
-                        .statusCode(status.value())
-                        .build()
-        );
+        return ResponseEntity.ok()
+                .body(this.validateAndCreateRequestResponse(userDTO, userId));
     }
 
     @PatchMapping("update-user-role/{userId}/{role}")
     public ResponseEntity<HttpResponse> updateUserRole(@PathVariable String role, @PathVariable Long userId) {
         final UserDTO userDTO = userService.updateUserRole(userId, role);
-        Object data = userDTO;
-        String reason = "User found";
-        HttpStatus status = HttpStatus.OK;
 
-        if (userDTO == null) {
-            data = "User with id [" + userId + "] not found!";
-            reason = "User not found";
-            status = HttpStatus.NO_CONTENT;
-        }
-
-        return ResponseEntity.status(status).body(
-                HttpResponse.builder()
-                        .timestamp(now())
-                        .data(of("user", data))
-                        .reason(reason)
-                        .status(status)
-                        .statusCode(status.value())
-                        .build()
-        );
-
+        return ResponseEntity.ok()
+                .body(this.validateAndCreateRequestResponse(userDTO, userId));
     }
 
     @DeleteMapping("delete-user/{id}")
@@ -146,5 +97,27 @@ public class UserController {
 
     private URI getURI() {
         return URI.create(ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
+    }
+
+    private HttpResponse validateAndCreateRequestResponse(UserDTO userDTO, Long userId) {
+        Object data = userDTO;
+        String reason = "User found";
+        HttpStatus status = HttpStatus.OK;
+        int statusValue = HttpStatus.OK.value();
+
+        if (userDTO == null) {
+            data = "User with id [" + userId + "] not found!";
+            reason = "User not found";
+            status = HttpStatus.NOT_FOUND;
+            statusValue = status.value();
+        }
+
+        return HttpResponse.builder()
+                .timestamp(now())
+                .data(of("user", data))
+                .reason(reason)
+                .status(status)
+                .statusCode(statusValue)
+                .build();
     }
 }
