@@ -35,15 +35,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO createUser(User user) {
+    public UserDTO createUser(UserDTO userRequest) {
+        User user = UserDTOMapper.toUser(userRequest);
+
         return UserDTOMapper.fromUser(userRepository.create(user));
     }
 
     @Override
-    public UserDTO updateUser(User user, Long userId) {
+    public UserDTO updateUser(UserDTO userUpdated, Long userId) {
+        User user = UserDTOMapper.toUser(userUpdated);
+
         Object updatedUser = userRepository.update(user, userId);
 
-        if(updatedUser != null) return UserDTOMapper.fromUser((User)updatedUser);
+        if (updatedUser != null) return UserDTOMapper.fromUser((User) updatedUser);
         else return null;
     }
 
@@ -51,7 +55,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO updateUserRole(Long userId, String role) {
         Object updatedUser = userRepository.updateUserRole(userId, role);
 
-        if(updatedUser != null) return UserDTOMapper.fromUser((User)updatedUser);
+        if (updatedUser != null) return UserDTOMapper.fromUser((User) updatedUser);
         else return null;
     }
 

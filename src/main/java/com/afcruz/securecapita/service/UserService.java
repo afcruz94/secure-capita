@@ -1,7 +1,6 @@
 package com.afcruz.securecapita.service;
 
 import com.afcruz.securecapita.Dto.UserDTO;
-import com.afcruz.securecapita.entity.User;
 
 import java.util.List;
 
@@ -10,9 +9,9 @@ public interface UserService {
 
     List<UserDTO> getAllUsers(int page, int size, String sort);
 
-    UserDTO createUser(User user);
+    UserDTO createUser(UserDTO userRequest);
 
-    UserDTO updateUser(User user, Long userId);
+    UserDTO updateUser(UserDTO userUpdated, Long userId);
 
     UserDTO updateUserRole(Long userId, String role);
 
