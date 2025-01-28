@@ -2,7 +2,6 @@ package com.afcruz.securecapita.controller;
 
 import com.afcruz.securecapita.Dto.PageableDTO;
 import com.afcruz.securecapita.Dto.UserDTO;
-import com.afcruz.securecapita.entity.User;
 import com.afcruz.securecapita.responseHandler.HttpResponse;
 import com.afcruz.securecapita.service.UserService;
 import jakarta.validation.Valid;
@@ -26,8 +25,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<HttpResponse> registerUser(@RequestBody @Valid User user) {
-        final UserDTO userDTO = userService.createUser(user);
+    public ResponseEntity<HttpResponse> registerUser(@RequestBody @Valid UserDTO userRequest) {
+        final UserDTO userDTO = userService.createUser(userRequest);
 
         return ResponseEntity.created(this.getURI()).body(
                 HttpResponse.builder()
@@ -72,8 +71,8 @@ public class UserController {
     }
 
     @PutMapping("update-user/{userId}")
-    public ResponseEntity<HttpResponse> updateEntireUser(@RequestBody @Valid User user, @PathVariable Long userId) {
-        final UserDTO userDTO = userService.updateUser(user, userId);
+    public ResponseEntity<HttpResponse> updateUser(@RequestBody @Valid UserDTO userUpdated, @PathVariable Long userId) {
+        final UserDTO userDTO = userService.updateUser(userUpdated, userId);
 
         return ResponseEntity.ok()
                 .body(this.validateAndCreateRequestResponse(userDTO, userId));
