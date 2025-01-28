@@ -20,7 +20,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.afcruz.securecapita.enums.RoleType.ROLE_USER;
 import static com.afcruz.securecapita.enums.VerificationType.ACCOUNT;
@@ -150,8 +153,8 @@ public class UserRepositoryImpl implements UserRepository<User> {
 
                 int updateCounter = namedParameterJdbcTemplate.update(UPDATE_USER_QUERY, parameterSource);
 
-                if(updateCounter > 0) {
-                   return get(userId);
+                if (updateCounter > 0) {
+                    return get(userId);
                 }
 
                 return null;
@@ -162,7 +165,7 @@ public class UserRepositoryImpl implements UserRepository<User> {
             }
         }
 
-        return null;
+        throw new ApiException("User does not exist. Please choose a valid user and try again");
     }
 
     @Override
@@ -173,7 +176,7 @@ public class UserRepositoryImpl implements UserRepository<User> {
         // Validate if User exist
         User user = this.get(userId);
 
-        if(user != null) {
+        if (user != null) {
             try {
                 // Check if new role exist and update
                 roleRepository.updateUserRole(userId, role);
@@ -184,7 +187,7 @@ public class UserRepositoryImpl implements UserRepository<User> {
                 int updateCounter = namedParameterJdbcTemplate.update(UPDATE_USER_ROLE_QUERY, of("role", roleTitle, "userId", userId));
 
                 // If update set title and return user fetched
-                if(updateCounter > 0) {
+                if (updateCounter > 0) {
                     user.setTitle(roleTitle);
                     return user;
                 }
